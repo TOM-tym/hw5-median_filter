@@ -5,11 +5,11 @@
  #include <math.h>
  #include "custombmplib.h"
 
- const char iFileName[] = "lena512.bmp";
+ const char iFileName[] = "lena2.bmp";
  const char oFileName[] = "result10.bmp";
- const int output_size[2] = {768, 768};	//output HEIGHT & WIDTH
+ const int output_size[2] = {512, 512};	//output HEIGHT & WIDTH
 
- extern void median_filter(BYTE* psrc, BYTE* pdst);
+ extern void median_filter(BYTE* psrc, BYTE* pdst, int height, int width, int N);
 
  int main(void) {
  	BITMAPFILEHEADER ibmfh, obmfh;	//inBitmapFileHead, outBitmapFileHead
@@ -36,7 +36,7 @@
  	obmih = ibmih;
  	obmih.biHeight = output_size[0];
  	obmih.biWidth = output_size[1];
- 	int oWidthByte = WIDTHBYTES(obmih.biWidth*obmih.biBitCount)
+ 	int oWidthByte = WIDTHBYTES(obmih.biWidth*obmih.biBitCount);
  	fwrite(&obmih, 1, sizeof(BITMAPINFOHEADER), pofile);
 	
  	//save palette
@@ -48,11 +48,11 @@
  	//read color data
  	unsigned int iWidthByte = WIDTHBYTES(ibmih.biWidth * ibmih.biBitCount);
  	BYTE *piColorData = (BYTE *)malloc(ibmih.biSizeImage);
+ 	fread(piColorData, 1, ibmih.biSizeImage, pifile);
 
  	//bilinear interpolation resize
- 	BYTE *poColorData;
- 	poColorData = imresize(piColorData, ibmih.biWidth, ibmih.biHeight, obmih.biWidth, obmih.biHeight, ibmih.biBitCount);
-
+ 	BYTE *poColorData = (BYTE *)malloc(obmih.biSizeImage);
+ 	median_filter(piColorData,poColorData,obmih.biHeight,obmih.biWidth,5);
  	fwrite(poColorData, 1, obmih.biSizeImage, pofile);
  	printf("finish.\n");
  	fclose(pifile);

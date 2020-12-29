@@ -1,0 +1,148 @@
+; 1-d median filter
+; param:
+;    psrc: a pointer to the begining of the original picture
+;    pdst: a pointer to the begining of the destination picture
+;    N: the size of the kernel, it should be a odd number.
+
+    .global _median_filter
+    .global _malloc
+_median_filter .cproc psrc, pdst, height, width, N
+
+    .reg line_idx, coloum_idx, current_col, total_offset, current_offset
+    .reg flag ;use to assist compare-brach operation
+    .reg current, median ;
+    .reg values ; pointer to the space of current values
+    .reg last_value
+    .reg index, half_N
+    .reg i, j, tmp1, tmp2, length
+
+    ; init variables
+    MVK 0, line_idx
+    MVK 0, coloum_idx
+    MVK 0, index
+    SHR N, 1, half_N
+    SUB width, 1, width
+    SUB height, 1, height
+    ; malloc space for temporary 
+    .call values = _malloc(N)
+
+    ; load values from memory
+main_loop:
+    MPY line_idx, width, total_offset
+    ADD total_offset, coloum_idx, total_offset
+    LDBU *+psrc[total_offset], current
+    MV current, last_value
+    
+    ;
+    SHRU width, 1, flag
+    CMPLT coloum_idx, width, flag
+
+[flag] B left_half
+[!flag] B right_half
+
+left_half: B left_loop_init
+right_half: B right_loop_init
+
+left_loop_init:
+		MVK 0, index
+        MV  total_offset, current_offset
+        ADD current_offset, half_N, current_offset ; unit: byte
+        MV  coloum_idx, current_col
+        ADD current_col, half_N, current_col
+left_loop:
+        ; Load values
+        CMPLT current_col, 0, flag
+        [flag] B next1
+        LDBU *+psrc[current_offset], current
+        SUB current_offset, 1, current_offset
+        SUB current_col, 1, current_col
+
+next1:  STB current, *+values[index]
+        ADD index, 1, index
+        CMPLT index, N, flag
+[flag]  B left_loop
+        CMPLT line_idx, height, flag
+[!flag] B exit_proc
+        CMPLT coloum_idx, width, flag
+[flag]  B sort 
+[!flag] B exit_proc
+
+right_loop_init:
+		MVK 0, index
+        MV  total_offset, current_offset
+		SUB current_offset, half_N, current_offset ; unit: byte
+		MV  coloum_idx, current_col
+		SUB current_col, half_N, current_col
+right_loop:
+	    ; Load values
+        CMPLT current_col, width, flag
+        [flag] B next2
+        LDBU *+psrc[current_offset], current
+        ADD current_offset, 1, current_offset
+next2:  STB current, *+values[index]
+        ADD index, 1, index
+        CMPLT index, N, flag
+
+[flag]  B right_loop
+        CMPLT line_idx, height, flag
+[!flag] B exit_proc
+        CMPLT coloum_idx, width, flag
+[flag]  B sort 
+[!flag] B exit_proc
+
+write_median:
+    STB median, *pdst[total_offset]
+    ADD coloum_idx, 1, coloum_idx
+    CMPGT coloum_idx, width, flag
+    [flag] B clear_and_add
+    [!flag] B add_col
+add_col:
+    ;ADD coloum_idx, 1, coloum_idx
+    B main_loop
+clear_and_add:
+    MVK 0, coloum_idx
+    ADD line_idx, 1, line_idx
+    CMPGT line_idx, height, flag
+    [flag] B exit_proc
+    B main_loop
+      
+
+sort:
+	MVK 0, i
+	MVK 0, j
+	SUB N, 1, length
+
+outer_loop:
+				CMPLT i, length, flag
+				; bubble sort here.
+				; I choose bubble sort here because it is very simple.
+				; Please feel free to implement any other sorting algorithm.
+				; NOTE THAT It is very difficult to debug Linear-assmbly in CCS.
+
+			    [!flag] B sorted
+			    MVK 0, j
+inner_loop:
+
+					SUB length, i ,flag
+					CMPLT j, flag, flag
+	        		[!flag] ADD i, 1, i
+	        		[!flag] B outer_loop
+			        LDBU *+values[j], tmp1
+			        ADD j, 1, j
+			        LDBU *+values[j], tmp2
+			        CMPGT tmp1, tmp2, flag
+			        [!flag] B inner_loop
+			        STB tmp1, *+values[j]
+			        SUB j, 1, j
+			        STB tmp2, *+values[j]
+			        ADD j, 1, j
+				    B inner_loop
+
+sorted: SHRU length, 1, length
+	    LDBU *values[length], median
+	    B write_median
+
+exit_proc:
+    .endproc
+
+
