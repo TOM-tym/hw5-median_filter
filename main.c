@@ -5,9 +5,9 @@
  #include <math.h>
  #include "custombmplib.h"
 
- const char iFileName[] = "lena2.bmp";
+ const char iFileName[] = "../imgs/girl2.bmp";
  const char oFileName[] = "result10.bmp";
- const int output_size[2] = {512, 512};	//output HEIGHT & WIDTH
+ const int output_size[2] = {256, 256};	//output HEIGHT & WIDTH
 
  extern void median_filter(BYTE* psrc, BYTE* pdst, int height, int width, int N);
 
@@ -37,6 +37,9 @@
  	obmih.biHeight = output_size[0];
  	obmih.biWidth = output_size[1];
  	int oWidthByte = WIDTHBYTES(obmih.biWidth*obmih.biBitCount);
+ 	obmih.biSizeImage = oWidthByte * obmih.biHeight;
+ 	obmfh.bfSize = obmfh.bfOffBits + obmih.biSizeImage;
+ 	fwrite(&obmfh, 1, sizeof(BITMAPFILEHEADER), pofile);
  	fwrite(&obmih, 1, sizeof(BITMAPINFOHEADER), pofile);
 	
  	//save palette
@@ -52,7 +55,7 @@
 
  	//bilinear interpolation resize
  	BYTE *poColorData = (BYTE *)malloc(obmih.biSizeImage);
- 	median_filter(piColorData,poColorData,obmih.biHeight,obmih.biWidth,5);
+ 	median_filter(piColorData,poColorData,obmih.biHeight,obmih.biWidth,3);
  	fwrite(poColorData, 1, obmih.biSizeImage, pofile);
  	printf("finish.\n");
  	fclose(pifile);

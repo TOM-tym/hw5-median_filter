@@ -35,7 +35,7 @@ main_loop:
     
     ;
     SHRU width, 1, flag
-    CMPLT coloum_idx, width, flag
+    CMPLT coloum_idx, flag, flag
 
 [flag] B left_half
 [!flag] B right_half
@@ -61,11 +61,11 @@ next1:  STB current, *+values[index]
         ADD index, 1, index
         CMPLT index, N, flag
 [flag]  B left_loop
-        CMPLT line_idx, height, flag
-[!flag] B exit_proc
-        CMPLT coloum_idx, width, flag
-[flag]  B sort 
-[!flag] B exit_proc
+        CMPGT line_idx, height, flag
+[flag] B exit_proc
+        CMPGT coloum_idx, width, flag
+[!flag]  B sort
+[flag] B exit_proc
 
 right_loop_init:
 		MVK 0, index
@@ -75,7 +75,7 @@ right_loop_init:
 		SUB current_col, half_N, current_col
 right_loop:
 	    ; Load values
-        CMPLT current_col, width, flag
+        CMPGT current_col, width, flag
         [flag] B next2
         LDBU *+psrc[current_offset], current
         ADD current_offset, 1, current_offset
@@ -84,10 +84,10 @@ next2:  STB current, *+values[index]
         CMPLT index, N, flag
 
 [flag]  B right_loop
-        CMPLT line_idx, height, flag
-[!flag] B exit_proc
-        CMPLT coloum_idx, width, flag
-[flag]  B sort 
+        CMPGT line_idx, height, flag
+[flag] B exit_proc
+        CMPGT coloum_idx, width, flag
+[!flag]  B sort
 [!flag] B exit_proc
 
 write_median:
