@@ -1,19 +1,10 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <configurations XML_version="1.2" id="configurations_0">
-    <configuration XML_version="1.2" id="configuration_0">
-        <instance XML_version="1.2" desc="Texas Instruments Simulator" href="connections/tisim_connection.xml" id="Texas Instruments Simulator" xml="tisim_connection.xml" xmlpath="connections"/>
-        <connection XML_version="1.2" id="Texas Instruments Simulator">
-            <instance XML_version="1.2" href="drivers/tisim_c64xx.xml" id="drivers" xml="tisim_c64xx.xml" xmlpath="drivers"/>
-            <platform XML_version="1.2" id="platform_0">
-                <instance XML_version="1.2" desc="EVMDM642" href="boards/evmdm642.xml" id="EVMDM642" xml="evmdm642.xml" xmlpath="boards"/>
-            <board XML_version="1.2" description="Spectrum Digital DM642 EVM Board" id="EVMDM642">
-                    <device HW_revision="1" XML_version="1.2" description="TMS320DM642 - C64x Fixed-point DSP" id="DM642_0" partnum="TMS320DM642" simulation="no">
-                        <cpu HW_revision="1.0" XML_version="1.2" desc="C64x" description="C64xx CPU" deviceSim="false" id="C64x" isa="TMS320C64XX">
-                            <property Type="stringfield" Value="Little Endian" id="Endianness"/>
-                        <property Type="choicelist" Value="0" id="bypass"/>
-                        </cpu>
-                    </device>
-                </board>
+    <instance XML_version="1.2" desc="C64x+ CPU Cycle Accurate Simulator, Little Endian" href="configurations/tisim_c64xpcpule.xml" id="C64x+ CPU Cycle Accurate Simulator, Little Endian" xml="tisim_c64xpcpule.xml" xmlpath="configurations"/>
+    <configuration XML_version="1.2" description="Simulates the C64x+ core in a cycle accurate manner. Supports timers(3) and a flat memory system. Does not simulate the cache system and any peripherals.  Use this configuration for core level algorithms development (including BIOS based development) and benchmarking, for any C64x+ based device. This configuration is faster than the Megamodule and device level configurations. &#10; Note on other configurations for this processor: &#10; * Choose the Megamodule configuration for developing &amp; benchmarking applications for cache usage; &#10; * Choose the device configurations for developing applications that use modules beyond the Megamodule. " id="C64x+ CPU Cycle Accurate Simulator, Little Endian">
+        <connection XML_version="1.2" desc="C64x+ CPU Cycle Accurate Simulator, Little Endian_0" id="C64x+ CPU Cycle Accurate Simulator, Little Endian">
+            <platform XML_version="1.2" id="platform_1">
+                <cpu HW_revision="" XML_version="1.2" desc="TMS320C64+" description="" deviceSim="false" id="device_0" isa="TMS320C64XP"/>
             </platform>
         </connection>
     </configuration>

@@ -6,6 +6,12 @@
  */
 
 #include <stdio.h>
+#include <assert.h>
+#include <stdint.h>
+#include <stdlib.h>
+#include <assert.h>
+#include <math.h>
+#include <time.h>
 
 #ifndef CUSTOMBMPLIB_H_
 #define CUSTOMBMPLIB_H_
@@ -13,7 +19,8 @@
 #define WIDTHBYTES(bits) (((bits)+31)/32*4) //计算图像宽所占字节数，并且取为4byte的倍数
 
 #pragma pack(push, 1)
-
+ extern cregister volatile unsigned int TSCL;
+ extern cregister volatile unsigned int TSCH;
 //match windows data format to C6000 data format
 typedef unsigned char BYTE;   //1 Byte
 typedef unsigned short WORD;  //2 Byte
